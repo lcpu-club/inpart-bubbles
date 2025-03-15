@@ -1,0 +1,5 @@
+:3141 {
+	root static
+	file_server
+	reverse_proxy /api/* localhost:3000
+}

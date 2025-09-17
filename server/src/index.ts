@@ -78,7 +78,7 @@ const app = new Elysia()
         for (const entry of [...added, ...modified]) {
           const fileDownloadPath = new URL(
             entry,
-            `https://raw.githubusercontent.com/lcpu-club/2025-fall-registration/refs/heads/main/`
+            `https://gh.dragoncloud.win/https://raw.githubusercontent.com/lcpu-club/2025-fall-registration/refs/heads/main/`
           )
           const response = await fetch(fileDownloadPath.href)
           const text = await response.text()

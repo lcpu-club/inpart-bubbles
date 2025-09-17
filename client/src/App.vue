@@ -1,14 +1,18 @@
 <template>
   <div class="container" ref="container">
     <div class="bg">
-      <h1 class="title" :class="{ disconnected: !wsConnected }">INSTALL PARTY</h1>
+      <h1 class="title" :class="{ disconnected: !wsConnected }">
+        WELCOME TO LCPU
+      </h1>
       <div class="ws-status" :class="{ disconnected: !wsConnected }">
         <div class="indicator"></div>
-        <div class="status-msg">WebSocket {{ wsConnected ? 'Connected' : 'Disconnected' }}</div>
+        <div class="status-msg">
+          WebSocket {{ wsConnected ? "Connected" : "Disconnected" }}
+        </div>
       </div>
     </div>
     <footer class="footer" :class="{ disconnected: !wsConnected }">
-      Linux Club of Peking University, 2025 Spring.
+      Linux Club of Peking University, 2025 Fall.
     </footer>
     <BubbleElement
       v-for="entry in bubbles"
@@ -21,115 +25,124 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
-import type { Bubble, Member } from './data'
-import BubbleElement from './components/Bubble.vue'
-import Dialog from './components/Dialog.vue'
+import { onBeforeUnmount, onMounted, ref, useTemplateRef } from "vue";
+import type { Bubble, Member } from "./data";
+import BubbleElement from "./components/Bubble.vue";
+import Dialog from "./components/Dialog.vue";
 
-const bubbles = ref(new Map<string, Bubble>())
-const container = useTemplateRef('container')
-const dialog = useTemplateRef('dialog-ref')
-const wsConnected = ref(false)
-let containerWidth: number | undefined
-let containerHeight: number | undefined
-let renderIntervalHandle: number
-let wsClient: WebSocket
-let wsClientHeartbeatIntervalHandle: number
-let resizeOberserver = new ResizeObserver(handleResize)
+const bubbles = ref(new Map<string, Bubble>());
+const container = useTemplateRef("container");
+const dialog = useTemplateRef("dialog-ref");
+const wsConnected = ref(false);
+let containerWidth: number | undefined;
+let containerHeight: number | undefined;
+let renderIntervalHandle: number;
+let wsClient: WebSocket;
+let wsClientHeartbeatIntervalHandle: number;
+let resizeOberserver = new ResizeObserver(handleResize);
 
 function handleResize(e: ResizeObserverEntry[]) {
-  containerWidth = e[0].contentRect.width
-  containerHeight = e[0].contentRect.height
+  containerWidth = e[0].contentRect.width;
+  containerHeight = e[0].contentRect.height;
 }
 
 onMounted(() => {
-  if (!container.value) return
-  containerWidth = container.value?.clientWidth
-  containerHeight = container.value?.clientHeight
-  resizeOberserver.observe(container.value)
-  renderIntervalHandle = setInterval(update, 25)
-  wsClient = new WebSocket('/api/ws')
-  wsClient.onopen = () => {
-    console.log('WebSocket connected')
-    wsConnected.value = true
-  }
-  wsClient.onmessage = (event) => {
-    const data = JSON.parse(event.data) as {
-      m: { [key: string]: Member }
-      d: string[]
-    }
-    for (const key of data.d) {
-      bubbles.value.delete(key)
-    }
-    for (const [key, member] of Object.entries(data.m)) {
-      if (!containerWidth || !containerHeight) return
-      if (bubbles.value.has(key)) {
-        bubbles.value.get(key)!.about = member.about
-        bubbles.value.get(key)!.social = member.social
-        continue
+  if (!container.value) return;
+  containerWidth = container.value?.clientWidth;
+  containerHeight = container.value?.clientHeight;
+  resizeOberserver.observe(container.value);
+  renderIntervalHandle = setInterval(update, 25);
+  function connectWs() {
+    wsClient = new WebSocket("/api/ws");
+    wsClient.onopen = () => {
+      console.log("WebSocket connected");
+      wsConnected.value = true;
+    };
+    wsClient.onmessage = (event) => {
+      const data = JSON.parse(event.data) as {
+        m: { [key: string]: Member };
+        d: string[];
+      };
+      for (const key of data.d) {
+        bubbles.value.delete(key);
       }
-      const radius = Math.random() * 20 + 40
-      const x = Math.random() * (containerWidth - 2 * radius) + radius
-      const y = Math.random() * (containerHeight - 2 * radius) + radius
-      const dirX = Math.random() * 2 - 1
-      const sgnDirY = Math.random() > 0.5 ? 1 : -1
-      const dirY = sgnDirY * Math.sqrt(1 - dirX ** 2)
-      const velocity = Math.random() + 1
-      bubbles.value.set(key, {
-        about: member.about,
-        social: member.social,
-        controls: {
-          coordinates: { x, y },
-          velocity,
-          direction: { x: dirX, y: dirY },
-          radius,
-        },
-      })
-    }
+      for (const [key, member] of Object.entries(data.m)) {
+        if (!containerWidth || !containerHeight) return;
+        if (bubbles.value.has(key)) {
+          bubbles.value.get(key)!.about = member.about;
+          bubbles.value.get(key)!.social = member.social;
+          continue;
+        }
+        const radius = Math.random() * 20 + 40;
+        const x = Math.random() * (containerWidth - 2 * radius) + radius;
+        const y = Math.random() * (containerHeight - 2 * radius) + radius;
+        const dirX = Math.random() * 2 - 1;
+        const sgnDirY = Math.random() > 0.5 ? 1 : -1;
+        const dirY = sgnDirY * Math.sqrt(1 - dirX ** 2);
+        const velocity = Math.random() + 1;
+        bubbles.value.set(key, {
+          about: member.about,
+          social: member.social,
+          controls: {
+            coordinates: { x, y },
+            velocity,
+            direction: { x: dirX, y: dirY },
+            radius,
+          },
+        });
+      }
+    };
+    wsClient.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+    wsClient.onclose = () => {
+      console.log("WebSocket closed");
+      clearInterval(wsClientHeartbeatIntervalHandle);
+      wsConnected.value = false;
+      setTimeout(function () {
+        console.log("reconnect ws...");
+        connectWs();
+      }, 1000);
+    };
+    wsClientHeartbeatIntervalHandle = setInterval(() => {
+      if (wsClient.readyState !== wsClient.OPEN) {
+        clearInterval(wsClientHeartbeatIntervalHandle);
+        wsConnected.value = false;
+        return;
+      }
+      wsClient.send("ping");
+    }, 5000);
   }
-  wsClient.onerror = (error) => {
-    console.error('WebSocket error:', error)
-  }
-  wsClient.onclose = () => {
-    console.log('WebSocket closed')
-    clearInterval(wsClientHeartbeatIntervalHandle)
-    wsConnected.value = false
-  }
-  wsClientHeartbeatIntervalHandle = setInterval(() => {
-    if (wsClient.readyState !== wsClient.OPEN) {
-      clearInterval(wsClientHeartbeatIntervalHandle)
-      wsConnected.value = false
-      return
-    }
-    wsClient.send('ping')
-  }, 5000)
-})
+  connectWs();
+});
 
 onBeforeUnmount(() => {
-  clearInterval(renderIntervalHandle)
-  clearInterval(wsClientHeartbeatIntervalHandle)
-  wsClient.close()
-  if (!container.value) return
-  resizeOberserver.unobserve(container.value)
-})
+  clearInterval(renderIntervalHandle);
+  clearInterval(wsClientHeartbeatIntervalHandle);
+  wsClient.close();
+  if (!container.value) return;
+  resizeOberserver.unobserve(container.value);
+});
 
 function update() {
-  if (!containerHeight || !containerWidth) return
+  if (!containerHeight || !containerWidth) return;
   for (const bubble of bubbles.value.values()) {
-    const { coordinates, velocity, direction, radius } = bubble.controls
-    const dx = velocity * direction.x
-    const dy = velocity * direction.y
-    coordinates.x += dx
-    coordinates.y += dy
+    const { coordinates, velocity, direction, radius } = bubble.controls;
+    const dx = velocity * direction.x;
+    const dy = velocity * direction.y;
+    coordinates.x += dx;
+    coordinates.y += dy;
     const nextFrame = {
       x: coordinates.x + dx,
       y: coordinates.y + dy,
-    }
+    };
     // handle boundaries
-    if (nextFrame.x + radius > containerWidth) direction.x = -Math.abs(direction.x)
-    if (nextFrame.x - radius < 0) direction.x = Math.abs(direction.x)
-    if (nextFrame.y + radius > containerHeight) direction.y = -Math.abs(direction.y)
-    if (nextFrame.y - radius < 0) direction.y = Math.abs(direction.y)
+    if (nextFrame.x + radius > containerWidth)
+      direction.x = -Math.abs(direction.x);
+    if (nextFrame.x - radius < 0) direction.x = Math.abs(direction.x);
+    if (nextFrame.y + radius > containerHeight)
+      direction.y = -Math.abs(direction.y);
+    if (nextFrame.y - radius < 0) direction.y = Math.abs(direction.y);
   }
 }
 </script>

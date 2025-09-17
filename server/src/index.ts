@@ -4,7 +4,7 @@ import { Member } from './data'
 
 const connections = new Set<ElysiaWS>()
 const data = new Map<string, Member>()
-const initialRepository = 'lcpu/install-party-registration'
+const initialRepository = 'lcpu/2025-fall-registration'
 const initialRepositoryContent = (await (
   await fetch(`https://code.lcpu.dev/api/v1/repos/${initialRepository}/contents/.`)
 ).json()) as {
@@ -78,7 +78,7 @@ const app = new Elysia()
         for (const entry of [...added, ...modified]) {
           const fileDownloadPath = new URL(
             entry,
-            `https://code.lcpu.dev/${body.repository.owner.login}/${body.repository.name}/raw/`
+            `https://raw.githubusercontent.com/lcpu-club/2025-fall-registration/refs/heads/main/`
           )
           const response = await fetch(fileDownloadPath.href)
           const text = await response.text()

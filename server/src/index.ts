@@ -19,7 +19,7 @@ for (const file of initialRepositoryContent
   .filter((x) => x.download_url)
   .filter((x) => x.path.endsWith('.toml'))) {
   const member = Bun.TOML.parse(await (await fetch(file.download_url!)).text()) as Member
-  const avatar = new URL(member.about.avatar, file.download_url!)
+  const avatar = new URL(member.about.avatar, "https://gh.dragoncloud.win/https://raw.githubusercontent.com/lcpu-club/2025-fall-registration/refs/heads/main/")
   member.about.avatar = avatar.href
   data.set(file.path, member)
 }

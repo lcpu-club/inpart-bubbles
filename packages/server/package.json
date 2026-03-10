@@ -1,6 +1,7 @@
 {
-  "name": "inpart-notifier-proxy",
+  "name": "@lcpu/inpart-notifier-proxy",
   "version": "1.0.50",
+  "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "bun run --watch src/index.ts",

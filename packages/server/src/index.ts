@@ -19,7 +19,10 @@ for (const file of initialRepositoryContent
   .filter((x) => x.download_url)
   .filter((x) => x.path.endsWith('.toml'))) {
   const member = Bun.TOML.parse(await (await fetch(file.download_url!)).text()) as Member
-  const avatar = new URL(member.about.avatar, "https://gh.dragoncloud.win/https://raw.githubusercontent.com/lcpu-club/2025-fall-registration/refs/heads/main/")
+  const avatar = new URL(
+    member.about.avatar,
+    'https://gh.dragoncloud.win/https://raw.githubusercontent.com/lcpu-club/2025-fall-registration/refs/heads/main/',
+  )
   member.about.avatar = avatar.href
   data.set(file.path, member)
 }
@@ -33,7 +36,7 @@ const app = new Elysia()
           added: t.Array(t.String()),
           removed: t.Array(t.String()),
           modified: t.Array(t.String()),
-        })
+        }),
       ),
       repository: t.Object({
         name: t.String(),
@@ -78,15 +81,12 @@ const app = new Elysia()
         for (const entry of [...added, ...modified]) {
           const fileDownloadPath = new URL(
             entry,
-            `https://gh.dragoncloud.win/https://raw.githubusercontent.com/lcpu-club/2025-fall-registration/refs/heads/main/`
+            `https://gh.dragoncloud.win/https://raw.githubusercontent.com/lcpu-club/2025-fall-registration/refs/heads/main/`,
           )
           const response = await fetch(fileDownloadPath.href)
           const text = await response.text()
           const info = Bun.TOML.parse(text) as Member
-          const avatar = new URL(
-            info.about.avatar,
-            fileDownloadPath.href
-          )
+          const avatar = new URL(info.about.avatar, fileDownloadPath.href)
           info.about.avatar = avatar.href
           m.set(entry, info)
           data.set(entry, info)

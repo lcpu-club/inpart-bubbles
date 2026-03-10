@@ -1,0 +1,12 @@
+{
+  "name": "@lcpu/inpart-bubbles",
+  "version": "11.4.514",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build:server": "bun build --compile --minify --target bun --outfile ./dist/server-bundle packages/server/src/index.ts",
+    "build:client": "cd packages/client && bunx vite build --outDir ../../dist/client --emptyOutDir",
+    "build": "bun run --parallel build:server build:client"
+  }
+}

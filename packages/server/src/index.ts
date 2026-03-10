@@ -46,7 +46,7 @@ const app = new Elysia()
       }),
     }),
     afterHandle({ body }) {
-      ;(async () => {
+      ; (async () => {
         const added = new Set<string>()
         const modified = new Set<string>()
         const removed = new Set<string>()
@@ -79,17 +79,22 @@ const app = new Elysia()
         }
         const m = new Map()
         for (const entry of [...added, ...modified]) {
-          const fileDownloadPath = new URL(
-            entry,
-            `https://gh.dragoncloud.win/https://raw.githubusercontent.com/lcpu-club/2025-fall-registration/refs/heads/main/`,
-          )
-          const response = await fetch(fileDownloadPath.href)
-          const text = await response.text()
-          const info = Bun.TOML.parse(text) as Member
-          const avatar = new URL(info.about.avatar, fileDownloadPath.href)
-          info.about.avatar = avatar.href
-          m.set(entry, info)
-          data.set(entry, info)
+          try {
+            const fileDownloadPath = new URL(
+              entry,
+              `https://gh.dragoncloud.win/https://raw.githubusercontent.com/lcpu-club/2025-fall-registration/refs/heads/main/`,
+            )
+            const response = await fetch(fileDownloadPath.href)
+            const text = await response.text()
+            // this can throw
+            const info = Bun.TOML.parse(text) as Member
+            const avatar = new URL(info.about.avatar, fileDownloadPath.href)
+            info.about.avatar = avatar.href
+            m.set(entry, info)
+            data.set(entry, info)
+          } catch (e) {
+            continue;
+          }
         }
         for (const entry of removed) {
           if (data.has(entry)) data.delete(entry)
@@ -117,7 +122,7 @@ const app = new Elysia()
       connections.delete(ws)
       console.log('connection closed')
     },
-    message(ws, msg) {},
+    message(ws, msg) { },
   })
   .listen(3000)
 

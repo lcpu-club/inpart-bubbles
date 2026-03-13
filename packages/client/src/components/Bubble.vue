@@ -3,35 +3,39 @@
     ref="wrapper"
     class="bubble-wrapper"
     :style="{
-      top: `${bubble.controls.coordinates.y - bubble.controls.radius}px`,
-      left: `${bubble.controls.coordinates.x - bubble.controls.radius}px`,
+      top: `${controls.coordinates.y - controls.radius}px`,
+      left: `${controls.coordinates.x - controls.radius}px`,
     }"
   >
     <div
       :style="{
-        width: `${bubble.controls.radius * 2}px`,
-        height: `${bubble.controls.radius * 2}px`,
-        backgroundImage: `url('${bubble.about.avatar}')`,
+        width: `${controls.radius * 2}px`,
+        height: `${controls.radius * 2}px`,
+        backgroundImage: `url('${member.about.avatar}')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
       }"
-      @mouseenter="((bubble.controls.velocity = 0), (hovering = true))"
-      @mouseleave="((bubble.controls.velocity = 2), (hovering = false))"
+      @mouseenter="((hovering = true), $emit('hover', true))"
+      @mouseleave="((hovering = false), $emit('hover', false))"
       class="bubble-inner"
-      @click="$emit('inspect', bubble)"
+      @click="$emit('inspect', member)"
     ></div>
-    <span class="name-label">{{ bubble.about.name }}</span>
+    <span class="name-label">{{ member.about.name }}</span>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { Bubble } from '@/data'
+import type { BubbleControls, Member } from '@/data'
 import { ref } from 'vue'
 
 defineProps<{
-  bubble: Bubble
+  member: Member
+  controls: BubbleControls
 }>()
 
 defineEmits<{
-  inspect: [data: Bubble]
+  inspect: [data: Member]
+  hover: [value: boolean]
 }>()
 
 const hovering = ref(false)

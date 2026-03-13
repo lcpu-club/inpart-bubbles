@@ -28,13 +28,13 @@
 </template>
 
 <script setup lang="ts">
-import { type Bubble } from '@/data'
+import { type Member } from '@/data'
 import { ref } from 'vue'
 import GithubMark from '@/assets/github-mark.svg'
 import WebsiteMark from '@/assets/website-mark.svg'
-const bubble = ref<Bubble | undefined>()
+const bubble = ref<Member | undefined>()
 
-function toggleInspecting(_bubble: Bubble | undefined) {
+function toggleInspecting(_bubble: Member | undefined) {
   bubble.value = _bubble
 }
 

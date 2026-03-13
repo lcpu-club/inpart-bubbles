@@ -8,7 +8,8 @@
     "build": "bun build --compile --minify --target bun --outfile ../server-bundle ./src/index.ts"
   },
   "dependencies": {
-    "elysia": "latest"
+    "elysia": "latest",
+    "fast-glob": "^3.3.3"
   },
   "devDependencies": {
     "bun-types": "latest"

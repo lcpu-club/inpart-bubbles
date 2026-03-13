@@ -10,3 +10,8 @@ export interface Member {
     website?: string
   }
 }
+
+export interface FormPersistedData {
+  time: number
+  member: Member
+}

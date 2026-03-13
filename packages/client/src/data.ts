@@ -11,17 +11,20 @@ export interface Member {
   }
 }
 
-export interface Bubble extends Member {
-  controls: {
-    direction: {
-      x: number
-      y: number
-    }
-    coordinates: {
-      x: number
-      y: number
-    }
-    velocity: number
-    radius: number
+export interface BubbleControls {
+  direction: {
+    x: number
+    y: number
   }
+  coordinates: {
+    x: number
+    y: number
+  }
+  speed: number
+  paused: boolean
+  radius: number
+}
+
+export interface Bubble extends Member {
+  controls: BubbleControls
 }

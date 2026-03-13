@@ -6,8 +6,12 @@
     "packages/*"
   ],
   "scripts": {
+    "dev:server": "bun run --watch packages/server/src/index.ts",
     "build:server": "bun build --compile --minify --target bun --outfile ./dist/server-bundle packages/server/src/index.ts",
+    "build:server:linux": "bun build --compile --minify --target bun --outfile ./dist/server-bundle --target bun-linux-x64 packages/server/src/index.ts",
     "build:client": "cd packages/client && bunx vite build --outDir ../../dist/client --emptyOutDir",
-    "build": "bun run --parallel build:server build:client"
+    "build": "bun run --parallel build:server build:client",
+    "build:linux": "bun run --parallel build:server:linux build:client && cp Caddyfile ./dist/Caddyfile",
+    "deploy": "bun build:linux && scp -r dist ojw:/home/rocky/"
   }
 }

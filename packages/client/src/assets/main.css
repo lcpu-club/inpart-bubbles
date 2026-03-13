@@ -3,10 +3,11 @@ body {
 }
 
 html {
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
-:root {
+:root,
+input {
   font-family:
     InterVariable,
     system-ui,
